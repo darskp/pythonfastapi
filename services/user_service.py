@@ -1,16 +1,33 @@
 from fastapi import HTTPException, Depends
+from utils.security import hash_password,verify_password
 
 users = {}
 
+
+# def create_user(user):
+#     users[user.username]={
+#         "age":user.age,
+#         "email":user.email
+#     }
+#     return {
+#         "username":user.username,
+#         "age":user.age,
+#         "email":user.email
+#     }
+
 def create_user(user):
-    users[user.username]={
-        "age":user.age,
-        "email":user.email
+    users[user.username] = {
+        "age": user.age,
+        "email": user.email,
+        "password": hash_password(user.password),
+        "role": "user"
     }
+
     return {
-        "username":user.username,
-        "age":user.age,
-        "email":user.email
+        "username": user.username,
+        "age": user.age,
+        "email": user.email,
+        "role": "user"
     }
 
 def get_user(username):
@@ -83,3 +100,23 @@ def admin_page(user):
         "message": "Admin Page",
         "user": user
     }
+
+def login_user(login_data):
+    if login_data.username not in users:
+        raise HTTPException(
+            status_code = 401,
+            detail="Invalid username or password"
+        )
+    user=users[login_data.username]
+
+    if not verify_password(login_data.password,user["password"]):
+        raise HTTPException(
+            status_code = 401,
+            detail="Invalid username or password"
+        )
+    
+    return{
+        "message":"Login Successful",
+        "username":login_data.username
+    }
+

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
-from models.user import User, UserResponse
-from services.user_service import create_user, get_user,get_all_users,update_user,delete_user,get_profile,get_app_user,get_order,admin_page
+from services.user_service import create_user, get_user,get_all_users,update_user,delete_user,get_profile,get_app_user,get_order,admin_page,login_user
+from models.user import User, UserResponse, LoginRequest, LoginResponse
 
 router = APIRouter()
 
@@ -41,3 +41,7 @@ def get_user_order(user = Depends(get_app_user)):
 @router.get("/admin")
 def admin_get_page(user=Depends(get_app_user)):
     return admin_page(user)
+
+@router.post("/login",response_model=LoginResponse)
+def login(login_data:LoginRequest):
+    return login_user(login_data)
