@@ -10,7 +10,3 @@ async def log_request(request,call_next):
     print("res",response.status_code)
     return response
 
-
-
-
-

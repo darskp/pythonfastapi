@@ -17,5 +17,5 @@ class UserResponse(BaseModel):
     role: str
 
 class LoginResponse(BaseModel):
-    message: str
-    username: str
+    access_token: str
+    token_type: str

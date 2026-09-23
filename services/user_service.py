@@ -1,5 +1,5 @@
 from fastapi import HTTPException, Depends
-from utils.security import hash_password,verify_password
+from utils.security import hash_password,verify_password, create_access_token
 
 users = {}
 
@@ -116,7 +116,10 @@ def login_user(login_data):
         )
     
     return{
-        "message":"Login Successful",
-        "username":login_data.username
+       "access_token":create_access_token(
+        login_data.username,
+        user["role"]
+       ),
+       "token_type":"bearer"
     }
 
