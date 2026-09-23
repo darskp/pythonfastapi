@@ -77,23 +77,6 @@ def delete_user(username):
         "email": deleted_user["email"]
     }
 
-def get_app_user():
-    return {
-        "username": "darshan",
-        "role": "admin"
-    }
-
-def get_profile(user):
-    return {
-        "message": "Profile loaded",
-        "user": user
-    }
-
-def get_order(user):
-    return {
-        "message": "Order loaded",
-        "user": user
-    }
 
 def admin_page(user):
     return{

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
-from services.user_service import create_user, get_user,get_all_users,update_user,delete_user,get_profile,get_app_user,get_order,admin_page,login_user
+from services.user_service import create_user, get_user,get_all_users,update_user,delete_user,admin_page,login_user
 from models.user import User, UserResponse, LoginRequest, LoginResponse
-
+from utils.security import get_current_user,require_admin
 router = APIRouter()
 
 @router.post("/users", status_code=201,response_model=UserResponse)
@@ -30,18 +30,17 @@ def test_500():
     result = number / 0
     return {"result": result}
 
-@router.get("/profile")
-def get_user_profile(user = Depends(get_app_user)):
-    return get_profile(user)
-
-@router.get("/order")
-def get_user_order(user = Depends(get_app_user)):
-    return get_order(user)
-
 @router.get("/admin")
-def admin_get_page(user=Depends(get_app_user)):
-    return admin_page(user)
+def admin_get_page(user=Depends(get_current_user)):
+    return require_admin(user)
 
 @router.post("/login",response_model=LoginResponse)
 def login(login_data:LoginRequest):
     return login_user(login_data)
+
+@router.get("/profile")
+def profile(user = Depends(get_current_user)):
+    return {
+        "message": "Profile loaded",
+        "user": user
+    }

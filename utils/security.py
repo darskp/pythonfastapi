@@ -1,7 +1,10 @@
 from pwdlib import PasswordHash
 import jwt
 from datetime import datetime, timedelta, timezone
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
 
 password_hash=PasswordHash.recommended()
 
@@ -49,7 +52,7 @@ decoded = jwt.decode(
 print("Decoded JWT: ")
 print(decoded)
 
-def verify_access(token:str):
+def verify_access_token(token:str):
     try:
         payload=jwt.decode(
             token,
@@ -63,3 +66,23 @@ def verify_access(token:str):
             status_code=401,
             detail="Invalid or expired token"
         )
+
+
+def get_current_user(
+    credentials:HTTPAuthorizationCredentials = Depends(security)
+):
+    token = credentials.credentials
+
+    payload = verify_access_token(token)
+
+    return payload
+
+
+def require_admin(user = Depends(get_current_user)):
+    if user["role"] != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required"
+        )
+
+    return user
