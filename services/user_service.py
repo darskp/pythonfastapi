@@ -20,14 +20,14 @@ def create_user(user):
         "age": user.age,
         "email": user.email,
         "password": hash_password(user.password),
-        "role": "user"
+        "role": user.role
     }
 
     return {
         "username": user.username,
         "age": user.age,
         "email": user.email,
-        "role": "user"
+        "role": user.role
     }
 
 def get_user(username):

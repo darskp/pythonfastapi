@@ -5,6 +5,7 @@ class User(BaseModel):
     age: int = Field(gt=0, le=120)
     email: str | None = None
     password:str
+    role:str="user"
 
 class LoginRequest(BaseModel):
     username: str
