@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException,status
+from fastapi import FastAPI, HTTPException,status,Depends
 from pydantic import BaseModel,Field
 from typing import Optional
 from routers.users import router
@@ -155,5 +155,26 @@ def test():
         )
 
 
+# Dependency Injection
+def get_current_user() -> User:
+    return User(
+        id=1,
+        name= "John",
+        email= "john@example.com",
+        age=24,
+        is_active=True
+    )
 
+@app.get("/profile")
+def profile(current_user:User=Depends(get_current_user)):
+    return {
+        "user": current_user,
+        "profile":[]
+    }
 
+@app.get("/my-settings")
+def mysettings(current_user:User=Depends(get_current_user)):
+    return {
+        "user": current_user,
+        "settings":[]
+    }
