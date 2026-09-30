@@ -1,8 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,status
 from pydantic import BaseModel,Field
 from typing import Optional
+from routers.users import router
 
 app=FastAPI()
+app.include_router(router)
 
 class User(BaseModel):
     id:int=Field(gt=0)
@@ -31,7 +33,7 @@ class UserPatch(BaseModel):
 
 users=[]
 
-@app.post("/users")
+@app.post("/users",status_code=201)
 def create_user(user:UserCreate):
     new_user = User(
         id=len(users) + 1,
@@ -45,13 +47,13 @@ def create_user(user:UserCreate):
 
     return new_user
 
-@app.get("/home")
+@app.get("/home",status_code=200)
 def home():
     return {
         "message":"Hello World"
     }
 
-@app.get("/users")
+@app.get("/users",status_code=200)
 def get_users():
     return users
 
@@ -64,17 +66,18 @@ def search_users(name:str="hi"):
     return result
 
 
-@app.get("/users/{user_id}")
+@app.get("/users/{user_id}",status_code=200)
 def userbyid(user_id:int):
     for user in users:
         if user.id == user_id:
             return user
+# Not found → 404
     raise HTTPException(
         status_code=404,
         detail="not found"
     )
 
-@app.put("/users/{user_id}")
+@app.put("/users/{user_id}",status_code=200)
 def update_user(user_id: int, user_update_data: UserUpdate):
 
     for user in users:
@@ -100,13 +103,13 @@ def update_user(user_id: int, user_update_data: UserUpdate):
     #             "message": "Updated Successfully",
     #             "data": user
     #         }
-    
+    # Not found → 404
     raise HTTPException(
         status_code=404,
         detail="User not found"
     )
 
-@app.patch("/users/{user_id}")
+@app.patch("/users/{user_id}",status_code=200)
 async def patch_user(user_id:int,user_data:UserPatch):
     for user in users:
         if user_id == user.id:
@@ -116,13 +119,14 @@ async def patch_user(user_id:int,user_data:UserPatch):
                 "message": "Updated Successfully",
                 "data": user
             }
+    # Not found → 404
     raise HTTPException(
         status_code=404,
         detail="User not found"
     )
             
 
-@app.delete("/users/{user_id}")
+@app.delete("/users/{user_id}",status_code=200)
 async def delete_user(user_id:int):
     for index,user in enumerate(users):
         if user.id == user_id:
@@ -132,10 +136,24 @@ async def delete_user(user_id:int):
                 "id": user_id
             }
 
+# Not found → 404
     raise HTTPException(
         status_code=404,
         detail="User not found"
     )
             
+# Unexpected server error → 500
+@app.get("/test")
+def test():
+    try:
+        x=10/0
+        return 0
+    except ZeroDivisionError:
+        raise HTTPException(
+            status_code=500,
+            detail="Cannot divide by zero"
+        )
+
+
 
 
