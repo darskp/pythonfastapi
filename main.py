@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException,status,Depends
+from fastapi import FastAPI, HTTPException,status,Request,Depends
 from pydantic import BaseModel,Field
 from typing import Optional
 from routers.users import router
@@ -32,6 +32,18 @@ class UserPatch(BaseModel):
     is_active: bool | None=None
 
 users=[]
+
+# HTTP Middleware
+@app.middleware("http")
+async def log_requests(request:Request,call_next):
+    print("PATH",request.url.path)
+    response=await call_next(request)
+    print("STATUS",response.status_code)
+    return response
+
+# Output
+# PATH /my-settings
+# STATUS 200
 
 @app.post("/users",status_code=201)
 def create_user(user:UserCreate):
